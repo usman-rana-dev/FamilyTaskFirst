@@ -1,0 +1,58 @@
+@page "/manage-tasks"
+@inject HttpClient Http
+@using FamilyTask.Components
+@using FamilyTask.Shared.Components
+@inherits TasksBase
+
+@if (isLoaded)
+{
+<div class="page-wrapper row m-0 col-12 p-0">
+    <div class="col-4 p-0">
+        <LeftMenu MenuItems="@leftMenuItem.ToArray()" OnAddItem="@onAddItem" />
+    </div>
+    <div class="col-8 p-0">
+        @if (showLister)
+        {<div class="col-10 offset-1 pt-5">
+             <div class="row m-0">
+                 <Field class="col-9 p-0 custom-input">
+                     <TextEdit Placeholder="Enter New Task" @bind-Text="@TaskObject.text" />
+                 </Field>
+                 @*<select @onchange=@onAssignToChanged @bind-value="" class="form-control col-9 p-0 custom-input">
+                     @foreach (var item in members)
+                     {
+                     <option value=@item.id.ToString()>@item.firstname @item.lastname</option>}
+                 </select>*@
+                 <div class="col-3 p-0 text-right">
+                     <Button class="add-btn px-4" @onclick="onCreateClick">Add</Button>
+                 </div>
+             </div>
+            </div>
+                                <div class="col-10 offset-1">
+                                    <TaskListerComponent Tasks="@tasksToShow" />
+                                </div>}
+        @if (showCreator)
+        {
+<div class="col-10 offset-1 pt-5">
+    <FamilyMemberCreator onAddCallback="@onMemberAdd" />
+</div>}
+    </div>
+</div>}
+
+@code {
+    [Parameter] public EventCallback<TaskModel> onAddNewTask { get; set; }
+    private TaskModel TaskObject = new TaskModel();
+    Guid selectedValue = Guid.Empty;
+
+    public void onAssignToChanged(ChangeEventArgs e)
+    {
+        //TaskObject.member.id = Guid.Parse(e.Value.ToString);
+    }
+    private async void onCreateClick()
+    {
+        await onAddNewTask.InvokeAsync(TaskObject);
+    }
+
+ }
+@functions {
+
+}
