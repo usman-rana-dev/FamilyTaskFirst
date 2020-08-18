@@ -7,6 +7,8 @@ public class TaskModel
     public string text { get; set; }
     public bool isDone { get; set; }
 
+    public Guid selectedMember{ get; set; }
+
     protected virtual void OnClickCallback(TaskModel e)
     {
         EventHandler<TaskModel> handler = ClickCallback;

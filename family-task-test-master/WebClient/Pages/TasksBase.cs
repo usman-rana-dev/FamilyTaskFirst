@@ -20,6 +20,8 @@ namespace WebClient.Pages
         protected bool showLister;
         protected TaskModel[] tasksToShow;
         protected List<TaskModel> allTasks = new List<TaskModel>();
+        protected string selectedMemberId = "";
+        protected string subject = "";
 
         [Inject]
         public IMemberDataService MemberDataService { get; set; }
@@ -28,63 +30,72 @@ namespace WebClient.Pages
         public ITasksDataService TasksDataService { get; set; }
         protected override async Task OnInitializedAsync()
         {
-            var result = await MemberDataService.GetAllMembers();
-
-            if (result != null && result.Payload != null && result.Payload.Any())
+            try
             {
-                foreach (var item in result.Payload)
+                var result = await MemberDataService.GetAllMembers();
+
+                if (result != null && result.Payload != null && result.Payload.Any())
                 {
-                    members.Add(new FamilyMember()
+                    foreach (var item in result.Payload)
                     {
-                        avtar = item.Avatar,
-                        email = item.Email,
-                        firstname = item.FirstName,
-                        lastname = item.LastName,
-                        role = item.Roles,
-                        id = item.Id
-                    });
+                        members.Add(new FamilyMember()
+                        {
+                            avtar = item.Avatar,
+                            email = item.Email,
+                            firstname = item.FirstName,
+                            lastname = item.LastName,
+                            role = item.Roles,
+                            id = item.Id
+                        });
+                        selectedMemberId = members?.First()?.id.ToString();
+                    }
                 }
-            }
 
 
-            var allTasksResult = await TasksDataService.GetAllTasks();
-            if (allTasksResult != null && allTasksResult.Payload != null && allTasksResult.Payload.Any())
-            {
-                foreach (var item in allTasksResult.Payload)
+                var allTasksResult = await TasksDataService.GetAllTasks();
+                if (allTasksResult != null && allTasksResult.Payload != null && allTasksResult.Payload.Any())
                 {
-                    allTasks.Add(new TaskModel()
+                    foreach (var item in allTasksResult.Payload)
                     {
-                        text = item.Subject,
-                        isDone = item.IsComplete,
-                        member = members.Where(x => x.id == item.AssignedToId).FirstOrDefault(),
-                        id = item.Id
-                    });
-                    allTasks[allTasks.FindIndex(ind => ind.id == item.Id)].ClickCallback += onTaskItemCompleted;
-                    allTasks[allTasks.FindIndex(ind => ind.id == item.Id)].ClickCallbackDelete += onTaskDelete;
+                        allTasks.Add(new TaskModel()
+                        {
+                            text = item.Subject,
+                            isDone = item.IsComplete,
+                            member = members.Where(x => x.id == item.AssignedToId).FirstOrDefault(),
+                            id = item.Id
+                        });
+                        allTasks[allTasks.FindIndex(ind => ind.id == item.Id)].ClickCallback += onTaskItemCompleted;
+                        allTasks[allTasks.FindIndex(ind => ind.id == item.Id)].ClickCallbackDelete += onTaskDelete;
+                    }
                 }
-            }
 
-            leftMenuItem = new MenuItem[members.Count + 1];
-            leftMenuItem[0] = new MenuItem
-            {
-                label = "All Tasks",
-                referenceId = Guid.Empty,
-                isActive = true
-            };
-            leftMenuItem[0].ClickCallback += showAllTasks;
-            for (int i = 1; i < members.Count + 1; i++)
-            {
-                leftMenuItem[i] = new MenuItem
+                leftMenuItem = new MenuItem[members.Count + 1];
+                leftMenuItem[0] = new MenuItem
                 {
-                    iconColor = members[i - 1].avtar,
-                    label = members[i - 1].firstname,
-                    referenceId = members[i - 1].id,
-                    isActive = false
+                    label = "All Tasks",
+                    referenceId = Guid.Empty,
+                    isActive = true
                 };
-                leftMenuItem[i].ClickCallback += onItemClick;
+                leftMenuItem[0].ClickCallback += showAllTasks;
+                for (int i = 1; i < members.Count + 1; i++)
+                {
+                    leftMenuItem[i] = new MenuItem
+                    {
+                        iconColor = members[i - 1].avtar,
+                        label = members[i - 1].firstname,
+                        referenceId = members[i - 1].id,
+                        isActive = false
+                    };
+                    leftMenuItem[i].ClickCallback += onItemClick;
+                }
+                showAllTasks(null, leftMenuItem[0]);
+                isLoaded = true;
             }
-            showAllTasks(null, leftMenuItem[0]);
-            isLoaded = true;
+            catch (Exception ex)
+            {
+                throw;
+            }
+            
         }
 
         protected void onAddItem()
@@ -94,21 +105,31 @@ namespace WebClient.Pages
             makeMenuItemActive(null);
             StateHasChanged();
         }
-        protected  async void onAddNewTask(TaskModel taskModel)
+        protected  async Task onAddNewTask(TaskModel taskModel)
         {
-            var response = TasksDataService.Create(new Domain.Commands.CreateTasksCommand
+            try
             {
-                AssignedToId = taskModel.member.id,
-                IsComplete = false,
-                Subject = taskModel.text
-            });
+                var response = TasksDataService.Create(new Domain.Commands.CreateTasksCommand
+                {
+                    AssignedToId = Guid.Parse(taskModel.selectedMember.ToString()),
+                    IsComplete = false,
+                    Subject = taskModel.text
+                });
 
+
+                members = new List<FamilyMember>();
+                allTasks = new List<TaskModel>();
+                tasksToShow = new TaskModel[] { };
+                await OnInitializedAsync();
+                subject = "";
+                StateHasChanged();
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
            
-            members = new List<FamilyMember>();
-            allTasks = new List<TaskModel>();
-            tasksToShow = null;
-            await OnInitializedAsync();
-            StateHasChanged();
         }
 
         public List<FamilyMember> getMembers()

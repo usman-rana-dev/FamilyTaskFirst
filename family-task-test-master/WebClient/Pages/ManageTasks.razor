@@ -13,19 +13,22 @@
     <div class="col-8 p-0">
         @if (showLister)
         {<div class="col-10 offset-1 pt-5">
-             <div class="row m-0">
-                 <Field class="col-9 p-0 custom-input">
-                     <TextEdit Placeholder="Enter New Task" @bind-Text="@TaskObject.text" />
-                 </Field>
-                 @*<select @onchange=@onAssignToChanged @bind-value="" class="form-control col-9 p-0 custom-input">
-                     @foreach (var item in members)
-                     {
-                     <option value=@item.id.ToString()>@item.firstname @item.lastname</option>}
-                 </select>*@
-                 <div class="col-3 p-0 text-right">
-                     <Button class="add-btn px-4" @onclick="onCreateClick">Add</Button>
-                 </div>
-             </div>
+                <div class="row m-0">
+                    <Field class="col-5 p-0 custom-input">
+                        <TextEdit Placeholder="Enter New Task" @bind-Text="@subject" />
+                    </Field>
+                    <div class="col-5 p-0 custom-input">
+                        <select @onchange=@onMemberSelect class="form-group form-control">
+                            @foreach (var item in members)
+                            {
+                            <option value=@item.id.ToString()>@item.firstname @item.lastname</option>
+                                  }
+                        </select>
+                    </div>
+                    <div class="col-2 p-0 text-right">
+                        <Button class="add-btn px-4" @onclick="onCreateClick">Add</Button>
+                    </div>
+                </div>
             </div>
                                 <div class="col-10 offset-1">
                                     <TaskListerComponent Tasks="@tasksToShow" />
@@ -38,21 +41,20 @@
     </div>
 </div>}
 
-@code {
-    [Parameter] public EventCallback<TaskModel> onAddNewTask { get; set; }
+@code { 
     private TaskModel TaskObject = new TaskModel();
-    Guid selectedValue = Guid.Empty;
 
-    public void onAssignToChanged(ChangeEventArgs e)
-    {
-        //TaskObject.member.id = Guid.Parse(e.Value.ToString);
-    }
     private async void onCreateClick()
     {
-        await onAddNewTask.InvokeAsync(TaskObject);
+        TaskObject.selectedMember = Guid.Parse(selectedMemberId);
+        TaskObject.text = subject;
+        await onAddNewTask(TaskObject);
+        TaskObject = new TaskModel();
     }
 
- }
-@functions {
+    void onMemberSelect(ChangeEventArgs e)
+    {
+        selectedMemberId = e.Value.ToString();
+    }
 
-}
+    }
