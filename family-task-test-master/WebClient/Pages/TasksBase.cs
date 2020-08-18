@@ -22,6 +22,7 @@ namespace WebClient.Pages
         protected List<TaskModel> allTasks = new List<TaskModel>();
         protected string selectedMemberId = "";
         protected string subject = "";
+        
 
         [Inject]
         public IMemberDataService MemberDataService { get; set; }
@@ -199,9 +200,26 @@ namespace WebClient.Pages
             }
         }
 
-        protected void onMemberAdd()
+        protected async Task onMemberAdd(FamilyMember familyMember)
         {
-            Console.WriteLine("on member add");
+            var result = await MemberDataService.Create(new Domain.Commands.CreateMemberCommand()
+            {
+                Avatar = familyMember.avtar,
+                FirstName = familyMember.firstname,
+                LastName = familyMember.lastname,
+                Email = familyMember.email,
+                Roles = familyMember.role
+            });
+
+            if (result != null && result.Payload != null && result.Payload.Id != Guid.Empty)
+            {
+                members = new List<FamilyMember>();
+                allTasks = new List<TaskModel>();
+                tasksToShow = new TaskModel[] { };
+                await OnInitializedAsync();
+                StateHasChanged();
+            }
+
         }
     }
 }

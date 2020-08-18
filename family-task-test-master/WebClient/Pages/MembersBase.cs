@@ -49,7 +49,7 @@ namespace WebClient.Pages
                     label = members[i].firstname,
                     referenceId = members[i].id,
                 });
-                leftMenuItem[i].ClickCallback += xx;
+                leftMenuItem[i].ClickCallback += getMemebers;
             }
             showCreator = true;
             showUpdator = false;
@@ -62,7 +62,7 @@ namespace WebClient.Pages
             showUpdator = false;
             StateHasChanged();
         }
-        protected async void xx(object sender, object e)
+        protected async void getMemebers(object sender, object e)
         {
             showCreator = false;
             showUpdator = true;
@@ -70,7 +70,7 @@ namespace WebClient.Pages
             var result = await MemberDataService.GetAllMembers();
             Guid val = (Guid)e.GetType().GetProperty("referenceId").GetValue(e);
             var getmember = result.Payload.ToList().Where(x => x.Id == val).FirstOrDefault();
-            var mmXX = new FamilyMember()
+            var createMember = new FamilyMember()
             {
                 avtar = getmember.Avatar,
                 email = getmember.Email,
@@ -79,7 +79,7 @@ namespace WebClient.Pages
                 role = getmember.Roles,
                 id = getmember.Id
             };
-            member = mmXX;
+            member = createMember;
             StateHasChanged();
         }
 
