@@ -106,12 +106,13 @@ namespace WebClient.Pages
                     id = result.Payload.Id
                 });
 
-                leftMenuItem.Add(new MenuItem
-                {
-                    iconColor = result.Payload.Avatar,
-                    label = result.Payload.FirstName,
-                    referenceId = result.Payload.Id
-                });
+                MenuItem menuItem = new MenuItem();
+                menuItem.iconColor = result.Payload.Avatar;
+                menuItem.label = result.Payload.FirstName;
+                menuItem.referenceId = result.Payload.Id;
+                menuItem.ClickCallback += getMemebers;
+
+                leftMenuItem.Add(menuItem); //assign to listItem
 
 
                 showCreator = false;
@@ -123,8 +124,6 @@ namespace WebClient.Pages
 
         protected async Task onMemberUpdate(FamilyMember familyMember)
         {
-            var tt = "tes";
-
             var result = await MemberDataService.Update(new Domain.Commands.UpdateMemberCommand()
             {
                 Id = familyMember.id,

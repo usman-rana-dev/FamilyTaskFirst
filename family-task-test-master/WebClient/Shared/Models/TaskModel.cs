@@ -38,8 +38,6 @@ public class TaskModel
     }
     public void InvokClickCallbackDelete(TaskModel e)
     {
-
-
         OnClickCallbackDelete(e);
     }
 

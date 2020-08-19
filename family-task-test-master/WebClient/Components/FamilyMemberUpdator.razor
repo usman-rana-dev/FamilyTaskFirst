@@ -1,5 +1,5 @@
 ﻿@namespace FamilyTask.Components
-
+@inject IToastService toastService
 
 <style>
     .create-wrapper .header {
@@ -104,7 +104,8 @@
     [Parameter] public EventCallback<Guid> onDeleteCallback { get; set; }
     //private FamilyMember member = new FamilyMember();
     private string[] avtars = new string[] { "#FE4E4E", "#FEB84E", "#FEEC4E", "#3EC732", "#4EFEF3", "#4E7FFE", "#E54EFE", "#C17216" };
-    [Parameter] public FamilyMember member
+    [Parameter]
+    public FamilyMember member
     {
         get; set;
     }
@@ -121,7 +122,8 @@
     private async void onDeleteClick()
     {
         await onDeleteCallback.InvokeAsync(member.id);
+        toastService.ShowInfo("Member has been deleted!"); // further we can wait for response and then show this message after handling response
     }
 
 
-    }
+}

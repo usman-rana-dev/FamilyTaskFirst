@@ -12,6 +12,7 @@ using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
 using WebClient.Abstractions;
 using WebClient.Services;
+using Blazored.Toast;
 
 namespace WebClient
 {
@@ -36,6 +37,8 @@ namespace WebClient
             builder.Services.AddHttpClient<IMemberDataService, MemberDataService>(client => client.BaseAddress = new Uri("https://localhost:5001/api/"));
 
             builder.Services.AddHttpClient<ITasksDataService, TasksDataService>(client => client.BaseAddress = new Uri("https://localhost:5001/api/"));
+
+            builder.Services.AddBlazoredToast();
 
             var host = builder.Build();
 

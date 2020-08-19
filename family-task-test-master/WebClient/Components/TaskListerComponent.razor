@@ -1,5 +1,6 @@
 
 @namespace FamilyTask.Components
+@inject IToastService toastService
 
 <style>
     .task-wrapper .task-item {
@@ -10,26 +11,32 @@
         font-size: 24px;
         font-family: "Poppins Light";
     }
+
     .done-text {
         text-decoration: line-through;
     }
+
     .task-wrapper .avtar {
         width: 32px;
         height: 32px;
         border-radius: 50%;
     }
-    @@media(max-width: 1400px) { 
-        .task-wrapper .task-item { 
+
+    @@media(max-width: 1400px) {
+        .task-wrapper .task-item {
             font-size: 16px;
         }
+
         .task-wrapper .avtar {
             width: 24px;
             height: 24px;
         }
+
         .delete-icon {
             width: 25px;
         }
     }
+
     @@media(max-width: 767.98px) {
         .task-wrapper .avtar {
             width: 16px;
@@ -48,10 +55,11 @@
                 </Check>
             </div>
             <div class="col-2 p-0 d-flex justify-content-end align-items-center">
-                @if (item.member != null) {
+                @if (item.member != null)
+                {
                     <div class="avtar mr-1" style="background-color: @item.member.avtar;"></div>
                 }
-            <div @onclick="@(e => onDeleteTask(item))"><img class="delete-icon" src="/assets/images/delete-icon.svg" /></div>
+                <div @onclick="@(e => onDeleteTask(item))"><img class="delete-icon" src="/assets/images/delete-icon.svg" /></div>
             </div>
         </div>
     }
@@ -59,12 +67,12 @@
 
 @code  {
     [Parameter] public TaskModel[] Tasks { get; set; }
-    
+
     public void onDeleteTask(TaskModel item)
     {
 
-         item.InvokClickCallbackDelete(item);
-
+        item.InvokClickCallbackDelete(item);
+        toastService.ShowInfo("Task has been deleted!"); // further we can wait for response and then show this message after handling response
     }
 
 }
